@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="./materialize/css/materialize.min.css" media="screen,projection" />
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <title>Máquina de Turing 2020</title>
+
+    <script src="./vis/vis-network.js"></script>
+    <link href="./vis/vis-network.css" rel="stylesheet" type="text/css" />
+
+    <link href="./sweetalert/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+
+</head>
+
+<style>
+    .center-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .center-forced {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    footer {
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+    }
+
+    .btn {
+        width: 70%;
+        font-size: 12pt;
+    }
+
+    .right {
+        font-weight: bold;
+        color: rgba(0, 192, 0, .85);
+    }
+
+    .wrong {
+        font-weight: bold;
+        color: rgba(255, 0, 0, .85);
+    }
+
+    .center-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .center-forced {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    footer {
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+    }
+
+    .btn {
+        width: 70%;
+        font-size: 12pt;
+    }
+
+    .h100 {
+        height: 100%;
+    }
+
+    .cp-af {
+        height: 60vh;
+    }
+
+    .bolder {
+        font-weight: bold;
+    }
+
+    .legenda {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 0 5px 0 20px
+    }
+
+    .inicial-final {
+        background-color: #ffc570;
+        border: 2px solid #eba134;
+    }
+
+    .inicial {
+        background-color: #ccc;
+        border: 2px solid #555;
+    }
+
+    .final {
+        background-color: #cc5555;
+        border: 2px solid #ff0000;
+    }
+
+    .tabs .tab a {
+        color: #00ACC1;
+    }
+
+    a.active {
+        background-color: rgba(0, 139, 155, .2);
+    }
+</style>
+
+<body>
+    <div class="row">
+        <div id="af" class="col s12">
+            <div class="container">
+                <div class="section">
+                    <h4 class="blue-text darken-3 center-align">Máquina de Turing 2020</h4>
+                </div>
+                <div class="section">
+                    <div>
+                        <span class="waves-effect waves-light blue darken-1 btn-small modal-trigger"
+                            href="#modalUnica"><i class="material-icons left">remove</i>Única</span>
+                        <span class="waves-effect waves-light blue darken-1 btn-small modal-trigger"
+                            href="#modalMultipla"><i class="material-icons left">menu</i>Multipla</span>
+                        <span class="waves-effect waves-light blue darken-1 btn-small"><i
+                                class="material-icons left">linear_scale</i>Passo a Passo</span>
+
+                        <div class="file-field input-field" style="float: right; margin-top: 0px;">
+                            <span class="waves-effect waves-light blue darken-1 btn-small"
+                                style="line-height: 32.4px; height: 32.4px; margin-right: 3px;"
+                                onclick="exportAf(event)"><i class="material-icons left">arrow_upward</i>Exportar
+                                AF</span>
+                            <span class="waves-effect waves-light blue darken-1 btn-small"
+                                style="height: 32.4px; line-height: 32.4px;">
+                                <span style="margin-top: 0px; line-height: 32.4px;"><i
+                                        class="material-icons left">arrow_downward</i>Importar MT</span>
+                                <input type="file" style="height: 32.4px;" onchange="openFile(event)">
+                            </span>
+                        </div>
+
+                    </div>
+                    <div class="card-panel cp-af">
+                        <div id="canvasvis" class="h100"></div>
+                    </div>
+                    <div>
+                        <p><strong>Legenda:</strong><span class="legenda inicial-final"></span>Inicial e Final<span
+                                class="legenda inicial"></span>Inicial<span class="legenda final"></span>Final
+                        </p>
+                        <p><strong>Para mudar um Estado para inicial ou final: </strong><i>Clique no Estado desejado >
+                                Menu >
+                                Opção I ou F</i></p>
+                        <p><strong>Para apagar um Estado ou Transição: </strong><i>Clique no Estado ou Transição
+                                desejada > Menu
+                                > Opção Apagar</i></p>
+                        <p><strong>Para adicionar uma Transição: </strong><i>Menu > Opção Adicionar Transição > Clique
+                                no Estado
+                                de origem e arraste até o de destino</i></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fixed-action-btn">
+                <a class="btn-floating btn-large green">
+                    <i class="large material-icons">create</i>
+                </a>
+                <ul>
+                    <li>
+                        <a class="btn-floating green tooltipped bolder" data-position="left"
+                            data-tooltip="Marcar o Estado selecionado como INICIAL" id="initial">I
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn-floating green tooltipped bolder" data-position="left"
+                            data-tooltip="Marcar/Desmarcar o Estado selecionado como FINAL" id="final">F
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn-floating blue tooltipped" data-position="left"
+                            data-tooltip="Adicionar novo Estado" id="addNode">
+                            <i class="material-icons">add</i>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn-floating yellow darken-2 tooltipped" data-position="left"
+                            data-tooltip="Adicionar nova Transição" id="addEdge">
+                            <i class="material-icons">arrow_forward</i>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn-floating red tooltipped" data-position="left"
+                            data-tooltip="Apagar Estado ou Transição selecionada" id="delete">
+                            <i class="material-icons">delete</i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="modalUnica" class="modal bottom-sheet">
+                <div class="modal-content">
+                    <h5>Entrada Única</h5>
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="input-field col s12">
+                                <input id="stringUnica" type="text" class="validate">
+                                <label for="stringUnica">String de entrada</label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#modalUnica" class="modal-close waves-effect waves-light btn-flat">Cancela</a>
+                    <a href="#modalUnica" class="waves-effect waves-light blue darken-1 btn-small"
+                        id="confirmaUnica">Confirma</a>
+                </div>
+            </div>
+
+            <div id="modalMultipla" class="modal bottom-sheet">
+                <div class="modal-content">
+                    <h5>Entrada Multipla</h5>
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="input-field col s12">
+                                <input id="string1" type="text" class="validate">
+                                <label for="string1">String de 1</label>
+                            </div>
+                            <div class="input-field col s12">
+                                <input id="string2" type="text" class="validate">
+                                <label for="string2">String de 2</label>
+                            </div>
+                            <div class="input-field col s12">
+                                <input id="string3" type="text" class="validate">
+                                <label for="string3">String de 3</label>
+                            </div>
+                            <div class="input-field col s12">
+                                <input id="string4" type="text" class="validate">
+                                <label for="string4">String de 4</label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#modalMultipla" class="modal-close waves-effect waves-light btn-flat">Cancela</a>
+                    <a href="#modalMultipla" class="waves-effect waves-light blue darken-1 btn-small"
+                        id="confirmaMultipla">Confirma</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript" src="./jquery/jquery-3.4.1.js"></script>
+    <script type="text/javascript" src="./materialize/js/materialize.min.js"></script>
+
+    <script src="./sweetalert/sweetalert2.min.js"></script>
+    <script type="text/javascript" src="./js/af/xml2json.js"></script>
+    <script type="text/javascript" src="./js/af/json2xml.js"></script>
+    <script type="text/javascript" src="./js/af/af.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.tooltipped').tooltip();
+            $(document).ready(function () {
+                $('.modal').modal();
+            });
+            $(document).ready(function(){
+                $('.fixed-action-btn').floatingActionButton();
+            });
+            Swal.fire({
+                title: 'Atenção!',
+                icon: 'info',
+                text: 'Para reiniciar sua máquina a fim de realizar novos testes você precisará recarregar a página, do contrário as funções não funcionarão para o segundo teste.',
+            })
+        });
+    </script>
+</body>
+
+</html>
