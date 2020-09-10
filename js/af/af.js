@@ -405,6 +405,7 @@ const describe = () => {
   //   label: "q" + (ids[ids.length - 1] + 1)
   // });
 };
+
 const exportAf = async event => {
   if (nodesData.length > 0) {
     let conteudo =json2xml(nodesData, edgesData, nodesAux.initial, nodesAux.final);
@@ -418,7 +419,7 @@ const exportAf = async event => {
         }
       },
       type: "question"
-    })
+    });
     let titulo = input.value;
     saveAs(blob, titulo + ".jff");
 
