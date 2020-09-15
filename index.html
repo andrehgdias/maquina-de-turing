@@ -131,7 +131,8 @@
                         <span class="waves-effect waves-light blue darken-1 btn-small modal-trigger"
                             href="#modalUnica"><i class="material-icons left">remove</i>Única</span>
                         <span class="waves-effect waves-light blue darken-1 btn-small modal-trigger"
-                            href="#modalMultipla"><i class="material-icons left">menu</i>Multipla</span>
+                            href="#modalMultipla"><i class="material-icons left">menu</i>Multiplas Entradas (4
+                            max)</span>
                         <span class="waves-effect waves-light blue darken-1 btn-small"><i
                                 class="material-icons left">linear_scale</i>Passo a Passo</span>
 
@@ -139,7 +140,7 @@
                             <span class="waves-effect waves-light blue darken-1 btn-small"
                                 style="line-height: 32.4px; height: 32.4px; margin-right: 3px;"
                                 onclick="exportAf(event)"><i class="material-icons left">arrow_upward</i>Exportar
-                                AF</span>
+                                MT</span>
                             <span class="waves-effect waves-light blue darken-1 btn-small"
                                 style="height: 32.4px; line-height: 32.4px;">
                                 <span style="margin-top: 0px; line-height: 32.4px;"><i
@@ -150,6 +151,8 @@
 
                     </div>
                     <div class="card-panel cp-af">
+                        <span class="badge blue white-text" id="numOfTransitions"
+                            data-badge-caption="Transições">0</span>
                         <div id="canvasvis" class="h100"></div>
                     </div>
                     <div>
@@ -166,17 +169,9 @@
                                 no Estado
                                 de origem e arraste até o de destino</i></p>
                     </div>
-
-                    <form id="form">
-                        <label for="ruleset">Ruleset</label><br>
-                        <input type="text" id="ruleset" name="ruleset"><br>
-                        <label for="tape">Tape</label><br>
-                        <input type="text" id="tape" name="tape"><br>
-                        <label for="head">Head Initial Setting</label><br>
-                        <input type="text" id="head" name="head"><br>
-                        <button type="submit" value="run">Run</button>
-                    </form>
-                    <div id="div"></div>
+                    <div id="div">
+                        <h5 class="blue-text darken-3">Histórico</h4>
+                    </div>
                 </div>
             </div>
 
