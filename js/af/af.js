@@ -252,6 +252,9 @@ network.on("click", function (properties) {
 const inputStringUnica = $("#stringUnica");
 const buttonStringUnica = $("#confirmaUnica");
 
+const inputStringPassoAPasso = $("#stringPassoAPasso");
+const buttonStringPassoAPasso = $("#confirmaPassoAPasso");
+
 const inputString1 = $("#string1");
 const inputString2 = $("#string2");
 const inputString3 = $("#string3");
@@ -259,20 +262,34 @@ const inputString4 = $("#string4");
 
 const buttonStringMultipla = $("#confirmaMultipla");
 
-const validateString = (arreyString) => {
+const validateString = (arreyString, stepByStep = false) => {
 	// Se estiver validando apenas 1 string, o arrey terá apenas um item, se for para multipla, será 4 strings
 	console.log("Validating", arreyString);
+	console.log("Step by step?", stepByStep);
 	console.log(arreyString.length);
 	console.log("Nodes data", nodesData);
 	console.log("Nodes aux", nodesAux);
 	console.log("Edge data", edgesData);
-  Printer.clear();
+	Printer.clear();
 
 	let nodeInicial = nodesAux.initial;
 	if (nodeInicial) {
 		let nodesFinal = nodesAux.final;
 		if (nodesFinal.length > 0) {
-			if (arreyString.length === 1) {
+			if (stepByStep) {
+				if (checkString(arreyString[0], nodeInicial.id, stepByStep))
+					Swal.fire({
+						title: "Uhuuuuuu",
+						text: `Sua string ${arreyString[0]} foi aceita!`,
+						type: "success",
+					});
+				else
+					Swal.fire({
+						title: "Ah, que pena!",
+						text: `Sua string ${arreyString[0]} foi rejeitada :(`,
+						type: "error",
+					});
+			} else if (arreyString.length === 1) {
 				// Unica
 				if (checkString(arreyString[0], nodeInicial.id))
 					Swal.fire({
@@ -349,6 +366,11 @@ buttonStringMultipla.click(function () {
 	]);
 });
 
+buttonStringPassoAPasso.click(function () {
+	console.log("String passo a passo");
+	validateString([inputStringPassoAPasso.val()], true);
+});
+
 const hasTransition = (nodeId) => {
 	let result = [];
 	for (var i in edgesData._data) {
@@ -366,11 +388,11 @@ const isFinal = (nodeId) => {
 };
 
 const isFinalLabel = (label) => {
-  for (let i = 0; i < nodesAux.final.length; i++) {
+	for (let i = 0; i < nodesAux.final.length; i++) {
 		if (nodesAux.final[i].label === label) return true;
 	}
-  return false;
-}
+	return false;
+};
 
 const parseRuleset = (aux) => {
 	let ruleset = {};
@@ -394,12 +416,13 @@ const parseRuleset = (aux) => {
 };
 
 const parseTape = (text) => {
-  let string = "";
-  for(let i=0; i < text.length; i++){
+	let string = "";
+	for (let i = 0; i < text.length; i++) {
 		string += text[i] + " ";
 	}
 	return string;
 };
+
 
 function contarQuantidadeFitas(id){
 	//let node = nodesData._data[0].id;
@@ -411,7 +434,7 @@ function contarQuantidadeFitas(id){
 	return quantFitas;
 }
 
-const checkString = (text, nodeId) => {
+const checkString = (text, nodeId, stepByStep = false) => {
 	let quantFitas = contarQuantidadeFitas(nodeId);
 	let m =[];
 		let ruleset = parseRuleset(0);
@@ -428,7 +451,7 @@ const checkString = (text, nodeId) => {
   		console.info(m);
   	
 
-	//return m.run();
+		return m.run(stepByStep);
 };
 
 const describe = () => {
