@@ -51,7 +51,7 @@ let manipulation = {
 			inputValidator: (value) => {
 				console.log(value.split(";"));
 				if (value.split(";").length != 3) {
-					return "A fita precisa ser do formato: leitura;escrita;direção";
+					//return "A fita precisa ser do formato: leitura;escrita;direção";
 				}
 			},
 			type: "question",
@@ -372,21 +372,21 @@ const isFinalLabel = (label) => {
   return false;
 }
 
-const parseRuleset = () => {
+const parseRuleset = (aux) => {
 	let ruleset = {};
-
 	for (var i in nodesData._data) {
 		let node = nodesData._data[i];
 		ruleset[node.label] = {};
 		let transitions = hasTransition(node.id);
 		if (transitions.length > 0)
 			transitions.forEach((transition) => {
-				let inputs = transition.label.split(";");
-				ruleset[node.label][inputs[0]] = [
-					nodesData._data[transition.to].label,
-					inputs[1],
-					inputs[2],
-				];
+				let fitas = transition.label.split("|");
+				let inputs = fitas[aux].split(";");
+					ruleset[node.label][inputs[0]] = [
+						nodesData._data[transition.to].label,
+						inputs[1],
+						inputs[2],
+					];
 			});
 	}
 
@@ -401,16 +401,34 @@ const parseTape = (text) => {
 	return string;
 };
 
+function contarQuantidadeFitas(id){
+	//let node = nodesData._data[0].id;
+	let transitions = hasTransition(id);
+	let quantFitas = 0;
+	if(transitions.length>0)
+		quantFitas = transitions[0].label.split("|").length;
+	console.log("QuantFitas:::: "+quantFitas);
+	return quantFitas;
+}
+
 const checkString = (text, nodeId) => {
-	let ruleset = parseRuleset();
-	let tape = new Tape(parseTape(text));
-	let head = new Head(nodesData._data[nodeId].label + " 0");
+	let quantFitas = contarQuantidadeFitas(nodeId);
+	let m =[];
+		let ruleset = parseRuleset(0);
+		let tape = new Tape(parseTape(text));
+		let head = new Head(nodesData._data[nodeId].label + " 0");
 
-  m = new Machine(ruleset, tape, head);
-  console.clear();
-  console.info(m);
+  		m[0] = new Machine(ruleset, tape, head);
+  		for(let i=1;i<quantFitas;i++){
+  			let ruleset = parseRuleset(i);
+			let tape = new Tape(parseTape(""));
+  			m[i] = new Machine(ruleset, tape, head);
+  		}
+  		//console.clear();
+  		console.info(m);
+  	
 
-	return m.run();
+	//return m.run();
 };
 
 const describe = () => {
