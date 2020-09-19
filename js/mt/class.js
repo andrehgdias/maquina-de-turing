@@ -2,12 +2,12 @@ class Head {
 	constructor(string) {
 		let parsed = Head.parse(string);
 		let state = parsed[0];
-        let location = parsed[1];
+		let location = parsed[1];
 		this.update(state, location);
 	}
 
 	get status() {
-		return `Estado atual do cabeçote: ${this.state} | Localização na fita: ${this.location}`;
+		return `Estado atual do cabeçote: ${this.state}\nLocalização na fita: ${this.location}`;
 	}
 
 	update(state, location) {
@@ -52,17 +52,24 @@ class Machine {
 	constructor(ruleset, tape, head) {
 		this.ruleset = ruleset;
 		this.tape = tape;
-        this.head = head;
-        this.numOfTransitions = 0;
+		this.head = head;
+		this.numOfTransitions = 0;
 	}
 
 	get status() {
-		return this.tape.status + " | " + this.head.status + " | " + "Nº de transições até o momento: " + this.numOfTransitions;
+		return (
+			this.tape.status +
+			"\n" +
+			this.head.status +
+			"\n" +
+			"Nº de transições até o momento: " +
+			this.numOfTransitions
+		);
 	}
 
 	shiftHead(step) {
-        let move = step.toUpperCase();
-        if (this.head.location == 0 && move == "L") {
+		let move = step.toUpperCase();
+		if (this.head.location == 0 && move == "L") {
 			this.tape.extendLeft();
 		} else if (
 			this.head.location == this.tape.tape.length - 1 &&
@@ -96,26 +103,28 @@ class Machine {
 	step() {
 		let new_state = this.stepLookup()[0];
 		let new_symbol = this.stepLookup()[1];
-        let move = this.stepLookup()[2];
-        this.numOfTransitions++;
+		let move = this.stepLookup()[2];
+		this.numOfTransitions++;
 
 		this.tape.write(new_symbol, this.head.location);
 		this.head.state = new_state;
 		this.shiftHead(move);
 	}
 
-	run() {
-        console.info(this.tape);
+	run(stepByStep = false) {
+		console.info(this.tape);
 		while (this.stepLookup()) {
-			Printer.print(this.status);
+			if (stepByStep) Printer.print(this.status);
 			this.step();
 		}
 
-		Printer.print(this.status);
-        Printer.print("halt");
-        
-        document.getElementById("numOfTransitions").innerText = this.numOfTransitions;
-
+		if (stepByStep) {
+			Printer.print(this.status);
+			Printer.print("~ FIM ~");
+			document.getElementById(
+				"numOfTransitions"
+			).innerText = this.numOfTransitions;
+		}
 		return isFinalLabel(this.head.state);
 	}
 }
@@ -130,6 +139,6 @@ class Printer {
 
 	static clear() {
 		let div = document.getElementById("div");
-		div.innerHTML = `<h5 class="blue-text darken-3">Histórico</h4>`;
+		div.innerHTML = `<h5 class="blue-text darken-3">Passo-a-Passo</h4>`;
 	}
 }

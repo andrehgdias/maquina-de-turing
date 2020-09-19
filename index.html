@@ -82,6 +82,7 @@
 
     .cp-af {
         height: 60vh;
+        position: relative;
     }
 
     .bolder {
@@ -117,6 +118,17 @@
     a.active {
         background-color: rgba(0, 139, 155, .2);
     }
+
+    .next-step {
+        bottom: 20px;
+        right: 20px;
+        position: absolute;
+    }
+
+    .sidenav {
+        width: 400px !important;
+        padding: 50px 0 0 20px;
+    }
 </style>
 
 <body>
@@ -133,8 +145,8 @@
                         <span class="waves-effect waves-light blue darken-1 btn-small modal-trigger"
                             href="#modalMultipla"><i class="material-icons left">menu</i>Multiplas Entradas (4
                             max)</span>
-                        <span class="waves-effect waves-light blue darken-1 btn-small"><i
-                                class="material-icons left">linear_scale</i>Passo a Passo</span>
+                        <span class="waves-effect waves-light blue darken-1 btn-small  modal-trigger"
+                            href="#modalPassoAPasso"><i class="material-icons left">linear_scale</i>Passo a Passo</span>
 
                         <div class="file-field input-field" style="float: right; margin-top: 0px;">
                             <span class="waves-effect waves-light blue darken-1 btn-small"
@@ -153,6 +165,10 @@
                     <div class="card-panel cp-af">
                         <span class="badge blue white-text" id="numOfTransitions"
                             data-badge-caption="Transições">0</span>
+                        <span class="next-step waves-effect waves-light green darken-3 btn-small hide" id="nextStep"
+                            data-badge-caption="Transições">Próximo
+                            Passo <i class="material-icons right">play_arrow
+                            </i></span>
                         <div id="canvasvis" class="h100"></div>
                     </div>
                     <div>
@@ -168,9 +184,6 @@
                         <p><strong>Para adicionar uma Transição: </strong><i>Menu > Opção Adicionar Transição > Clique
                                 no Estado
                                 de origem e arraste até o de destino</i></p>
-                    </div>
-                    <div id="div">
-                        <h5 class="blue-text darken-3">Histórico</h4>
                     </div>
                 </div>
             </div>
@@ -225,7 +238,7 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#modalUnica" class="modal-close waves-effect waves-light btn-flat">Cancela</a>
-                    <a href="#modalUnica" class="waves-effect waves-light blue darken-1 btn-small"
+                    <a href="#modalUnica" class="modal-close waves-effect waves-light blue darken-1 btn-small"
                         id="confirmaUnica">Confirma</a>
                 </div>
             </div>
@@ -256,12 +269,38 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#modalMultipla" class="modal-close waves-effect waves-light btn-flat">Cancela</a>
-                    <a href="#modalMultipla" class="waves-effect waves-light blue darken-1 btn-small"
+                    <a href="#modalMultipla" class="modal-close waves-effect waves-light blue darken-1 btn-small"
                         id="confirmaMultipla">Confirma</a>
+                </div>
+            </div>
+
+            <div id="modalPassoAPasso" class="modal bottom-sheet">
+                <div class="modal-content">
+                    <h5>Entrada Única - Visualização Passo-a-Passo</h5>
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="input-field col s12">
+                                <input id="stringPassoAPasso" type="text" class="validate">
+                                <label for="stringPassoAPasso">String de entrada</label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#modalPassoAPasso" class="modal-close waves-effect waves-light btn-flat">Cancela</a>
+                    <a href="#modalPassoAPasso" data-target="slide-out"
+                        class="modal-close sidenav-trigger waves-effect waves-light blue darken-1 btn-small"
+                        id="confirmaPassoAPasso">Confirma</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <ul id="slide-out" class="sidenav">
+        <div id="div">
+            <h5 class="blue-text darken-3">Passo-a-Passo</h4>
+        </div>
+    </ul>
 
     <!--JavaScript at end of body for optimized loading-->
     <script type="text/javascript" src="./jquery/jquery-3.4.1.js"></script>
@@ -277,12 +316,10 @@
     <script>
         $(document).ready(function () {
             $('.tooltipped').tooltip();
-            $(document).ready(function () {
-                $('.modal').modal();
-            });
-            $(document).ready(function () {
-                $('.fixed-action-btn').floatingActionButton();
-            });
+            $('.modal').modal();
+            $('.fixed-action-btn').floatingActionButton();
+            $('.sidenav').sidenav();
+
             Swal.fire({
                 title: 'Atenção!',
                 icon: 'info',
