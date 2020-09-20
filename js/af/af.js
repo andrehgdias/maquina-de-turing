@@ -64,7 +64,17 @@ let manipulation = {
 };
 
 let physics = {
-	enabled: false,
+	enabled: true,
+	barnesHut: {
+		theta: 0.5,
+		gravitationalConstant: -5000,
+		centralGravity: 0.3,
+		springLength: 175,
+		springConstant: 0.04,
+		damping: 0.09,
+		avoidOverlap: 0
+	  },
+	maxVelocity: 2,
 };
 
 let options = {
@@ -488,18 +498,53 @@ const openFile = (event) => {
 			let json = JSON.parse(xml2json(xmlDoc, "    "));
 			delete json.structure.automaton["#comment"];
 
-			if (json.structure.type === "fa") {
+			if (json.structure.type === "turing") {
 				let nodes = json.structure.automaton.state;
 				let edges = json.structure.automaton.transition;
+				let numOfTapes = json.structure.tapes
+					? json.structure.tapes
+					: 1;
 
-				buildAf(nodes, edges);
+				console.log(edges);
+
+				if (numOfTapes > 1)
+					edges.forEach((edge) => {
+						let reads = [];
+						let writes = [];
+						let moves = [];
+						console.log("Edge: ", edge);
+						let max = edge.read.length;
+						console.log("Max: ", max);
+						for (let index = 0; index < max; index++) {
+							let arreyRead = edge.read;
+							let arreyWrite = edge.write;
+							let arreyMove = edge.move;
+
+							reads[index] = arreyRead[index]["#text"]
+								? arreyRead[index]["#text"]
+								: "&";
+							writes[index] = arreyWrite[index]["#text"]
+								? arreyWrite[index]["#text"]
+								: "&";
+							moves[index] = arreyMove[index]["#text"]
+								? arreyMove[index]["#text"]
+								: "S";
+						}
+						edge.read = reads;
+						edge.write = writes;
+						edge.move = moves;
+					});
+
+				console.log(edges);
+
+				buildMT(nodes, edges, numOfTapes);
 
 				let jsonConvertedAsXml = json2xml(json, "");
 			} else {
 				Swal.fire({
 					title: "Arquivo inválido!",
 					text:
-						"O arquivo selecionado não é um AF exportado pelo JFLAP",
+						"O arquivo selecionado não é uma MT exportada pelo JFLAP",
 					type: "error",
 				});
 			}
@@ -508,7 +553,7 @@ const openFile = (event) => {
 	reader.readAsText(input.files[0]);
 };
 
-const buildAf = (nodes, edges) => {
+const buildMT = (nodes, edges, numOfTapes) => {
 	nodes.forEach((node) => {
 		nodesData.add({
 			id: node["@id"],
@@ -521,6 +566,7 @@ const buildAf = (nodes, edges) => {
 			if (node.hasOwnProperty("final")) {
 				let config = {
 					id: node["@id"],
+					label: node["@name"],
 					color: {
 						border: "#eba134",
 						background: "#ffc570",
@@ -535,6 +581,7 @@ const buildAf = (nodes, edges) => {
 			} else {
 				nodesAux.initial = {
 					id: node["@id"],
+					label: node["@name"],
 					color: {
 						border: "#555",
 						background: "#ccc",
@@ -549,6 +596,7 @@ const buildAf = (nodes, edges) => {
 		} else if (node.hasOwnProperty("final")) {
 			nodesAux.final.push({
 				id: node["@id"],
+				label: node["@name"],
 				color: {
 					border: "#ff0000",
 					background: "#cc5555",
@@ -567,11 +615,33 @@ const buildAf = (nodes, edges) => {
 	let i = 1;
 	edges.forEach((edge) => {
 		var ids = edgesData.getIds();
+		let label = "";
+
+		if (numOfTapes > 1)
+			for (let index = 0; index < numOfTapes; index++) {
+				label +=
+					(edge.read[index] !== null ? edge.read[index] : "&") +
+					";" +
+					(edge.write[index] !== null ? edge.write[index] : "&") +
+					";" +
+					edge.move[index] +
+					(index + 1 < numOfTapes ? "|" : "");
+			}
+		else
+			for (let index = 0; index < numOfTapes; index++) {
+				label +=
+					(edge.read !== null ? edge.read : "&") +
+					";" +
+					(edge.write !== null ? edge.write : "&") +
+					";" +
+					edge.move;
+			}
+
 		edgesData.update({
 			id: ids.length > 0 ? ids[ids.length - 1] + 1 : i,
 			from: edge.from,
 			to: edge.to,
-			label: edge.read,
+			label,
 		});
 		i++;
 	});
