@@ -28,15 +28,15 @@ class Tape {
 	}
 
 	get status() {
-		return "Fita: " + this.tape.join(" ");
+		return this.tape.join(" ");
 	}
 
 	extendLeft() {
-		this.tape.unshift("B");
+		this.tape.unshift("&");
 	}
 
 	extendRight() {
-		this.tape.push("B");
+		this.tape.push("&");
 	}
 
 	write(symbol, location) {
@@ -49,22 +49,37 @@ class Tape {
 }
 
 class Machine {
-	constructor(ruleset, tape, head) {
+	constructor(i, ruleset, tape, head, auxTapes = []) {
+		this.id = i;
 		this.ruleset = ruleset;
 		this.tape = tape;
 		this.head = head;
 		this.numOfTransitions = 0;
+		this.auxTapes = auxTapes;
 	}
 
 	get status() {
-		return (
+		let string =
+			"> Fita Id " +
+			this.id +
+			"\n" +
 			this.tape.status +
 			"\n" +
-			this.head.status +
-			"\n" +
-			"Nº de transições até o momento: " +
-			this.numOfTransitions
-		);
+			this.head.status;
+
+		this.auxTapes.forEach((m) => {
+			string +=
+				"\n\n> Fita Id " +
+				m.id +
+				"\n" +
+				m.tape.status +
+				"\n" +
+				m.head.status;
+		});
+
+		string += "\nNº de transições até o momento: " + this.numOfTransitions + "\n\n";
+
+		return string;
 	}
 
 	shiftHead(step) {
@@ -88,6 +103,7 @@ class Machine {
 	// Alterar regras para percorrer as rulesets e aceitar ou rejeitar entradas
 	// ====================================================================================================
 	stepLookup() {
+		console.log("Step Lookup: ", this.ruleset);
 		if (
 			this.ruleset[this.head.state] &&
 			this.ruleset[this.head.state][this.tape.tape[this.head.location]]
@@ -100,7 +116,8 @@ class Machine {
 		}
 	}
 
-	step() {
+	step(aux = false) {
+		console.log("Step aux? ", aux);
 		let new_state = this.stepLookup()[0];
 		let new_symbol = this.stepLookup()[1];
 		let move = this.stepLookup()[2];
@@ -112,19 +129,32 @@ class Machine {
 	}
 
 	run(stepByStep = false) {
-		console.info(this.tape);
+		let count = 0;
 		while (this.stepLookup()) {
+			console.info("Maquina: ", this);
+			console.log("Step: ", count);
+			console.log("Status: ", this.status);
+
 			if (stepByStep) Printer.print(this.status);
 			this.step();
+			this.auxTapes.forEach((m) => {
+				let stepLookup = m.stepLookup();
+				console.log("Check step lookup aux: ", stepLookup);
+				if (stepLookup) {
+					console.log("Iniciando step maquina secundária: ", m);
+					m.step(true);
+				}
+			});
 		}
 
 		if (stepByStep) {
 			Printer.print(this.status);
 			Printer.print("~ FIM ~");
-			document.getElementById(
-				"numOfTransitions"
-			).innerText = this.numOfTransitions;
+			document.getElementById("numOfTransitions").innerText =
+				this.numOfTransitions + 1;
 		}
+		console.info("Maquina principal: ", this);
+
 		return isFinalLabel(this.head.state);
 	}
 }

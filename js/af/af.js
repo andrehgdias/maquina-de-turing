@@ -44,12 +44,10 @@ let manipulation = {
 		callback(nodeData);
 	},
 	addEdge: async function (edgeData, callback) {
-		console.warn("Adding Edge");
 		let input = await Swal.fire({
 			title: "Qual o simbolo que será validado?",
 			input: "text",
 			inputValidator: (value) => {
-				console.log(value.split(";"));
 				if (value.split(";").length != 3) {
 					//return "A fita precisa ser do formato: leitura;escrita;direção";
 				}
@@ -57,7 +55,6 @@ let manipulation = {
 			type: "question",
 		});
 
-		console.warn(input);
 		let maxId = edgesData.max("id");
 		let id = maxId != null ? maxId.id + 1 : 1;
 		edgeData.label = input.value;
@@ -226,22 +223,16 @@ finalButton.on("click", (event) => {
 	}
 });
 
-nodesData.on("*", function (event, properties, senderId) {
-	console.log("event", event, properties);
-	console.log(nodesData);
-	console.log(edgesData);
-});
+nodesData.on("*", function (event, properties, senderId) {});
 
 initialButton.hide();
 finalButton.hide();
 network.on("click", function (properties) {
 	var ids = parseInt(properties.nodes.toString());
-	console.log(ids);
 	if (ids) {
 		initialButton.show();
 		finalButton.show();
 		clickedNode = nodesData.get(ids);
-		console.log("clicked nodes:", clickedNode);
 	} else {
 		initialButton.hide();
 		finalButton.hide();
@@ -264,12 +255,6 @@ const buttonStringMultipla = $("#confirmaMultipla");
 
 const validateString = (arreyString, stepByStep = false) => {
 	// Se estiver validando apenas 1 string, o arrey terá apenas um item, se for para multipla, será 4 strings
-	console.log("Validating", arreyString);
-	console.log("Step by step?", stepByStep);
-	console.log(arreyString.length);
-	console.log("Nodes data", nodesData);
-	console.log("Nodes aux", nodesAux);
-	console.log("Edge data", edgesData);
 	Printer.clear();
 
 	let nodeInicial = nodesAux.initial;
@@ -305,14 +290,11 @@ const validateString = (arreyString, stepByStep = false) => {
 					});
 			} else if (arreyString.length === 4) {
 				// Multipla
-				console.warn("Multipla");
 				let accepted = [];
 				for (let string of arreyString) {
 					if (checkString(string, nodeInicial.id)) {
-						console.log(string, " foi aceita");
 						accepted.push(string);
 					} else {
-						console.log(string, " foi rejeitada");
 					}
 				}
 				if (accepted.length) {
@@ -352,12 +334,10 @@ const validateString = (arreyString, stepByStep = false) => {
 };
 
 buttonStringUnica.click(function () {
-	console.log("String unica");
 	validateString([inputStringUnica.val()]);
 });
 
 buttonStringMultipla.click(function () {
-	console.log("String multipla");
 	validateString([
 		inputString1.val(),
 		inputString2.val(),
@@ -367,7 +347,6 @@ buttonStringMultipla.click(function () {
 });
 
 buttonStringPassoAPasso.click(function () {
-	console.log("String passo a passo");
 	validateString([inputStringPassoAPasso.val()], true);
 });
 
@@ -404,11 +383,11 @@ const parseRuleset = (aux) => {
 			transitions.forEach((transition) => {
 				let fitas = transition.label.split("|");
 				let inputs = fitas[aux].split(";");
-					ruleset[node.label][inputs[0]] = [
-						nodesData._data[transition.to].label,
-						inputs[1],
-						inputs[2],
-					];
+				ruleset[node.label][inputs[0]] = [
+					nodesData._data[transition.to].label,
+					inputs[1],
+					inputs[2],
+				];
 			});
 	}
 
@@ -423,35 +402,33 @@ const parseTape = (text) => {
 	return string;
 };
 
-
-function contarQuantidadeFitas(id){
+function contarQuantidadeFitas(id) {
 	//let node = nodesData._data[0].id;
 	let transitions = hasTransition(id);
 	let quantFitas = 0;
-	if(transitions.length>0)
+	if (transitions.length > 0)
 		quantFitas = transitions[0].label.split("|").length;
-	console.log("QuantFitas:::: "+quantFitas);
 	return quantFitas;
 }
 
 const checkString = (text, nodeId, stepByStep = false) => {
 	let quantFitas = contarQuantidadeFitas(nodeId);
-	let m =[];
-		let ruleset = parseRuleset(0);
-		let tape = new Tape(parseTape(text));
-		let head = new Head(nodesData._data[nodeId].label + " 0");
+	let ruleset = parseRuleset(0);
+	let state = nodesData._data[nodeId].label;
+	let tape = new Tape(parseTape(text));
+	let head = new Head(state + " 0");
+	let machines = [];
 
-  		m[0] = new Machine(ruleset, tape, head);
-  		for(let i=1;i<quantFitas;i++){
-  			let ruleset = parseRuleset(i);
-			let tape = new Tape(parseTape(""));
-  			m[i] = new Machine(ruleset, tape, head);
-  		}
-  		//console.clear();
-  		console.info(m);
-  	
+	for (let i = 0; i < quantFitas - 1; i++) {
+		let ruleset = parseRuleset(i + 1);
+		let tape = new Tape(parseTape("&"));
+		machines[i] = new Machine(i + 1, ruleset, tape, new Head(state + " 0"));
+	}
 
-		return m.run(stepByStep);
+	m = new Machine(0, ruleset, tape, head, machines);
+
+	console.log("MAQUINA CRIADA: ", m);
+	return m.run(stepByStep);
 };
 
 const describe = () => {
@@ -510,7 +487,6 @@ const openFile = (event) => {
 
 			let json = JSON.parse(xml2json(xmlDoc, "    "));
 			delete json.structure.automaton["#comment"];
-			console.info("xml parsed without comment", json);
 
 			if (json.structure.type === "fa") {
 				let nodes = json.structure.automaton.state;
@@ -519,7 +495,6 @@ const openFile = (event) => {
 				buildAf(nodes, edges);
 
 				let jsonConvertedAsXml = json2xml(json, "");
-				console.log("JSON parsed", jsonConvertedAsXml);
 			} else {
 				Swal.fire({
 					title: "Arquivo inválido!",
@@ -586,7 +561,6 @@ const buildAf = (nodes, edges) => {
 			var index = nodesAux.final.findIndex(
 				(nodeAux) => nodeAux.id === node["@id"]
 			);
-			console.log(index);
 			nodesData.update(nodesAux.final[index]);
 		}
 	});
