@@ -437,7 +437,6 @@ const checkString = (text, nodeId, stepByStep = false) => {
 
 	m = new Machine(0, ruleset, tape, head, machines);
 
-	console.log("MAQUINA CRIADA: ", m);
 	return m.run(stepByStep);
 };
 
@@ -478,7 +477,7 @@ const exportAf = async (event) => {
 	} else {
 		Swal.fire({
 			title: "Erro!",
-			text: "Não há nenhum automato definido!",
+			text: "Não há nenhuma máquina definida!",
 			type: "error",
 		});
 	}
@@ -505,16 +504,12 @@ const openFile = (event) => {
 					? json.structure.tapes
 					: 1;
 
-				console.log(edges);
-
 				if (numOfTapes > 1)
 					edges.forEach((edge) => {
 						let reads = [];
 						let writes = [];
 						let moves = [];
-						console.log("Edge: ", edge);
 						let max = edge.read.length;
-						console.log("Max: ", max);
 						for (let index = 0; index < max; index++) {
 							let arreyRead = edge.read;
 							let arreyWrite = edge.write;
@@ -534,8 +529,6 @@ const openFile = (event) => {
 						edge.write = writes;
 						edge.move = moves;
 					});
-
-				console.log(edges);
 
 				buildMT(nodes, edges, numOfTapes);
 
