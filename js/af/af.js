@@ -66,13 +66,8 @@ let manipulation = {
 let physics = {
 	enabled: true,
 	barnesHut: {
-		theta: 0.5,
 		gravitationalConstant: -5000,
-		centralGravity: 0.3,
 		springLength: 175,
-		springConstant: 0.04,
-		damping: 0.09,
-		avoidOverlap: 0
 	  },
 	maxVelocity: 2,
 };
@@ -459,7 +454,7 @@ const exportAf = async (event) => {
 			nodesData,
 			edgesData,
 			nodesAux.initial,
-			nodesAux.final
+			nodesAux.final,
 		);
 		let blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
 		let input = await Swal.fire({
